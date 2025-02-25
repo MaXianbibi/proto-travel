@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//  "id","ident","type","name","latitude_deg","longitude_deg","elevation_ft","continent","iso_country","iso_region","municipality","scheduled_service","icao_code","iata_code","gps_code","local_code","home_link","wikipedia_link","keywords"
+
+
+model Airport {
+  id                Int     
+  ident             String  @unique
+  type              String
+  name              String
+  latitude_deg      Float
+  longitude_deg     Float
+  elevation_ft      Int?    // Peut être NULL
+  continent         String
+  iso_country       String
+  iso_region        String
+  municipality      String
+  scheduled_service String
+  icao_code         String? @unique // Peut être NULL mais doit être unique si présent
+  iata_code         String? @unique
+  gps_code          String?
+  local_code        String?
+  home_link         String?
+  wikipedia_link    String?
+  keywords          String?
+  full_name_country String?
+
+  @@map("airports") // Change le nom de la table en base de données si nécessaire
+}
+
