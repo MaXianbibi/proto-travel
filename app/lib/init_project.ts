@@ -114,27 +114,4 @@ export default async function initProject() {
     // //         large_airports.push(airport);
     // //     }
     // // }
-
-
-    // console.log("Aéroports importés :", large_airports);
-    console.log("🚀 Initialisation du projet");
-
-
-    try {
-
-        const res = await amadeus.shopping.flightOffersSearch.get({
-            originLocationCode: 'CUN',
-            destinationLocationCode: 'LAX',
-            departureDate: '2025-06-01',
-            returnDate: '2025-06-10',
-            adults: 1,
-            currencyCode: 'CAD',
-        });
-        const sort_by_price = res.data.sort((a: any, b: any) => a.price.total - b.price.total)
-        fs.writeFileSync('flights.json', JSON.stringify(sort_by_price, null, 2))
-    } catch (error) {
-        console.error("❌ Erreur lors de la recherche de vols :", error);
-    }
-
-
 }

@@ -1,5 +1,7 @@
 "use server"
 
+import { get_name_from_iata_airline } from "./db_func";
+
 // Interface pour les données
 
 // "id","code","name","continent","wikipedia_link","keywords"
@@ -92,7 +94,9 @@ export interface FlightOffer {
   }
   
   export interface AirportInfo {
+
     iataCode: string;
+    iataName?: string;
     terminal?: string;
     at: string; // Date ISO 8601
   }
@@ -128,68 +132,71 @@ export interface FlightOffer {
   }
   
 
-"use server"
 
-export async function mapFlightOffers(sort_by_price: any[]): Promise<FlightOffer[]> {
-    return sort_by_price.map((flight: any): FlightOffer => ({
+  export async function mapFlightOffers(sort_by_price: any[]): Promise<FlightOffer[]> {
+    return Promise.all(
+      sort_by_price.map(async (flight: any): Promise<FlightOffer> => ({
         id: flight.id,
         source: flight.source,
         oneWay: flight.oneWay,
         lastTicketingDate: flight.lastTicketingDate,
         numberOfBookableSeats: flight.numberOfBookableSeats,
         price: {
-            currency: flight.price.currency,
-            total: flight.price.total,
-            base: flight.price.base,
-            grandTotal: flight.price.grandTotal
+          currency: flight.price.currency,
+          total: flight.price.total,
+          base: flight.price.base,
+          grandTotal: flight.price.grandTotal,
         },
-        itineraries: flight.itineraries.map((itinerary: any): Itinerary => ({
+        itineraries: await Promise.all(
+          flight.itineraries.map(async (itinerary: any): Promise<Itinerary> => ({
             duration: itinerary.duration,
-            segments: itinerary.segments.map((segment: any): FlightSegment => ({
+            segments: await Promise.all(
+              itinerary.segments.map(async (segment: any): Promise<FlightSegment> => ({
                 id: segment.id,
                 departure: {
-                    iataCode: segment.departure.iataCode,
-                    terminal: segment.departure.terminal ?? undefined,
-                    at: segment.departure.at
+                  iataCode: segment.departure.iataCode,
+                  iataName: await get_name_from_iata_airline(segment.departure.iataCode) ?? "N/A",
+                  terminal: segment.departure.terminal ?? undefined,
+                  at: segment.departure.at,
                 },
                 arrival: {
-                    iataCode: segment.arrival.iataCode,
-                    terminal: segment.arrival.terminal ?? undefined,
-                    at: segment.arrival.at
+                  iataCode: segment.arrival.iataCode,
+                  terminal: segment.arrival.terminal ?? undefined,
+                  at: segment.arrival.at,
                 },
                 carrierCode: segment.carrierCode,
                 number: segment.number,
-                aircraft: {
-                    code: segment.aircraft.code
-                },
+                aircraft: { code: segment.aircraft.code },
                 duration: segment.duration,
-                numberOfStops: segment.numberOfStops
-            }))
-        })),
+                numberOfStops: segment.numberOfStops,
+              }))
+            ),
+          }))
+        ),
         validatingAirlineCodes: flight.validatingAirlineCodes,
         travelerPricings: flight.travelerPricings.map((traveler: any): TravelerPricing => ({
-            travelerId: traveler.travelerId,
-            travelerType: traveler.travelerType,
-            price: {
-                currency: traveler.price.currency,
-                total: traveler.price.total,
-                base: traveler.price.base,
-                grandTotal: traveler.price.grandTotal
-            },
-            fareDetailsBySegment: traveler.fareDetailsBySegment.map((fare: any): FareDetails => ({
-                segmentId: fare.segmentId,
-                cabin: fare.cabin,
-                class: fare.class,
-                fareBasis: fare.fareBasis,
-                includedCheckedBags: {
-                    quantity: fare.includedCheckedBags?.quantity ?? 0
-                },
-                amenities: fare.amenities?.map((amenity: any): Amenity => ({
-                    description: amenity.description,
-                    isChargeable: amenity.isChargeable,
-                    amenityType: amenity.amenityType
-                })) ?? []
-            }))
-        }))
-    }));
-}
+          travelerId: traveler.travelerId,
+          travelerType: traveler.travelerType,
+          price: {
+            currency: traveler.price.currency,
+            total: traveler.price.total,
+            base: traveler.price.base,
+            grandTotal: traveler.price.grandTotal,
+          },
+          fareDetailsBySegment: traveler.fareDetailsBySegment.map((fare: any): FareDetails => ({
+            segmentId: fare.segmentId,
+            cabin: fare.cabin,
+            class: fare.class,
+            fareBasis: fare.fareBasis,
+            includedCheckedBags: { quantity: fare.includedCheckedBags?.quantity ?? 0 },
+            amenities: fare.amenities?.map((amenity: any): Amenity => ({
+              description: amenity.description,
+              isChargeable: amenity.isChargeable,
+              amenityType: amenity.amenityType,
+            })) ?? [],
+          })),
+        })),
+      }))
+    );
+  }
+  

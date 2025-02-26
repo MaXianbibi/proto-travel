@@ -2,6 +2,7 @@
 
 import prisma from "@/app/lib/prisma";
 import { Airport } from "@/app/lib/interface";
+import client from "./redis";
 
 
 
@@ -69,9 +70,35 @@ export async function search_airport(name: string): Promise<Airport[]>{
 
     } catch (error) {
         console.error("❌ Erreur lors de la recherche :", error);
-
         return [];
+    }
+}
 
+export async function get_name_from_iata_airline(iata : string) {
+
+    try { 
+        const iata_name = await client.get(`iata_code:${iata}`);
+        if (iata_name) {
+            return iata_name;
+        }
+    } catch (error) {
+        console.error("❌ Erreur lors de la recherche :", error);
     }
 
+    try {
+        const result = await prisma.airport.findUnique({
+            where: {
+                iata_code: iata
+            }
+        });
+
+        if (result) {
+            client.set(`iata_code:${iata}`, result.name);
+        }
+        
+        return result?.name || null;
+    } catch (error) {
+        console.error("❌ Erreur lors de la recherche :", error);
+        return null;
+    }
 }

@@ -6,13 +6,11 @@ const SECRET_KEY = Buffer.from(process.env.SECRET_KEY || "", "hex"); // Clé 256
 const HMAC_KEY = Buffer.from(process.env.HMAC_KEY || "", "hex"); // Clé pour HMAC
 const IV_LENGTH = 16; // Longueur du vecteur d'initialisation
 
-export async  function encryptParams(params: Record<string, string | number>): Promise<string> {
-    const iv = crypto.randomBytes(IV_LENGTH);
-    
-    // Ajoute une expiration (timestamp UNIX + 5 minutes)
-    // const timestamp = Math.floor(Date.now() / 1000) + 300;
-    // params["exp"] = timestamp;
+function deterministicIV(input: string): Buffer {
+    return crypto.createHash("sha256").update(input).digest().subarray(0, IV_LENGTH);
+}
 
+export async function encryptParams(params: Record<string, string | number>): Promise<string> {
     // Convertit les paramètres en string JSON
     const jsonParams = JSON.stringify(params);
 
@@ -21,6 +19,9 @@ export async  function encryptParams(params: Record<string, string | number>): P
 
     // Ajoute la signature aux paramètres
     const finalPayload = JSON.stringify({ data: jsonParams, hmac });
+
+    // Génère un IV déterministe basé sur les données
+    const iv = deterministicIV(finalPayload);
 
     // Chiffre avec AES-256-CBC
     const cipher = crypto.createCipheriv("aes-256-cbc", SECRET_KEY, iv);
@@ -49,15 +50,8 @@ export async function decryptParams(encryptedText: string): Promise<Record<strin
         if (expectedHmac !== hmac) {
             throw new Error("Signature HMAC invalide !");
         }
-   
-        const params = JSON.parse(data);
-
-        // Vérifie l’expiration
-        // if (params.exp < Math.floor(Date.now() / 1000)) {
-        //     throw new Error("URL expirée !");
-        // }
-
-        return params;
+    
+        return JSON.parse(data);
     } catch (error) {
         console.error("Erreur de déchiffrement :", error);
         return null;

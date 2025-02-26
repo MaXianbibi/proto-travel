@@ -41,3 +41,12 @@ model Airport {
   @@map("airports") // Change le nom de la table en base de données si nécessaire
 }
 
+model Airline {
+  id                 Int     @id @default(autoincrement()) // Identifiant unique
+  name               String
+  iata               String? @unique // Code IATA (peut être null et doit être unique)
+  icao               String? @unique // Code ICAO (peut être null et doit être unique)
+  active             Boolean?
+  acceptingComplaints Boolean?
+  website            String?
+}
