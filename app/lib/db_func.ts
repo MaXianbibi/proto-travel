@@ -12,8 +12,6 @@ export async function insertManyAddresses(airports: Airport[]) {
             data: airports,
             skipDuplicates: true,
         });
-
-        console.log(`✅ ${result.count} adresses insérées avec succès !`);
     } catch (error) {
         console.error("❌ Erreur lors de l'insertion :", error);
     }

@@ -4,6 +4,13 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
+enum Role {
+  USER    // Utilisateur classique
+  ADMIN   // Administrateur
+  MODERATOR // Modérateur (si besoin)
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -50,3 +57,16 @@ model Airline {
   acceptingComplaints Boolean?
   website            String?
 }
+
+
+model User {
+  id        String   @id @default(cuid()) // Identifiant unique
+  email     String   @unique // Email unique obligatoire
+  password  String   // Mot de passe hashé (bcrypt)
+  createdAt DateTime @default(now()) // Date d'inscription
+  updatedAt DateTime @updatedAt      // Date de dernière mise à jour
+  role      Role     @default(USER) // Rôle avec une valeur par défaut
+
+  @@map("users") // Nom de la table en BDD
+}
+

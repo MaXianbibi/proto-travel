@@ -21,23 +21,26 @@ import { useRouter } from 'next/navigation';
 
 
 import { encryptParams } from "@/app/lib/encrypt";
+import { User } from "./lib/auth/interface";
+import { getUser, logout } from "./lib/auth/getUser";
 
 export default function Home() {
   const router = useRouter()
-  
+
   const [airportsList, setAirportsList] = useState<Airport[]>([])
-  
+
   const [fromPannel, setfromPannel] = useState(false)
   const [toPannel, setToPannel] = useState(false)
-  
-  
+
+
   const [from, setfrom] = useState<Airport | null>(null)
   const [to, setTo] = useState<Airport | null>(null)
-  
+
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
-  
+
   const { RangePicker } = DatePicker;
-  
+  const [user, setUser] = useState<User | null>(null)
+
   async function search(value: string) {
     if (value.length < 2) {
       setAirportsList([])
@@ -48,10 +51,10 @@ export default function Home() {
     setAirportsList(airports)
   }
 
-  function onDateChange(_dates: [Dayjs | null, Dayjs | null] | null, dateStrings: [string, string]) { 
+  function onDateChange(_dates: [Dayjs | null, Dayjs | null] | null, dateStrings: [string, string]) {
     setSelectedDates(dateStrings)
   }
-  
+
   async function encrypt() {
 
     const query: Record<string, string> = {
@@ -62,28 +65,81 @@ export default function Home() {
       adults: '1',
       currency: 'USD'
     }
-    const encryptedParams: string =  await encryptParams(query)
+    const encryptedParams: string = await encryptParams(query)
+
     router.push(`/journey?data=${encryptedParams}`)
   }
 
 
+  useEffect(() => {
+    async function getUserClient() {
+      const res: User | null = await getUser()
+      if (res) {
+        setUser(res)
+      }
+      console.log("👤 User", res)
+    }
+    getUserClient()
+  }, [])
+
+
+
+  async function logout_client() {
+    await logout()
+    window.location.reload()
+
+  }
 
   return (
     <>
-      <div className="w-svw h-svh flex flex-col items-center pt-24 ">
+      <div className="w-svw h-svh flex flex-col items-center gap-2 ">
+        <header>
+
+          {
+            user ?
+              <div className="w-svw h-16 shadow-md flex justify-end items-center px-8">
+                <p className="text-blue-400 p-2 px-4  underline font-bold">{user.email}</p>
+                <button className="text-blue-400 p-2 px-4  underline font-bold" onClick={() => {
+                  logout_client()
+                }}>
+                  Log out
+                </button>
+              </div>
+              :
+
+
+            <div className="w-svw h-16 shadow-md flex justify-end items-center px-8">
+
+            <button className="text-blue-400 p-2 px-4  underline font-bold" onClick={() => {
+              router.push("/login")
+            }}>
+              Log in
+            </button>
+
+
+            <button className="text-blue-400 p-2 px-4  underline font-bold" onClick={() => {
+              router.push("/signup")
+            }}>
+              Sign Up
+            </button>
+
+
+          </div>
+          }
+        </header>
         <div className="flex-col w-2/3  p-24 flex gap-5">
           <div className="flex justify-between w-10/12">
 
             <h1 className="font-bold text-2xl ">Proto Travel</h1>
             <Space direction="horizontal" size={20}>
-              <RangePicker   onChange={onDateChange} format="YYYY-MM-DD" />
+              <RangePicker onChange={onDateChange} format="YYYY-MM-DD" />
             </Space>
 
           </div>
           <div className="flex gap-2">
 
             <div className={`flex gap-5 w-10/12 inter-font`}>
-                <Button
+              <Button
                 variant="contained"
                 onClick={() => {
                   setfromPannel(true);
@@ -94,24 +150,24 @@ export default function Home() {
                   color: "black",
                   textAlign: "left",
                   fontFamily: [
-                  '-apple-system',
-                  'BlinkMacSystemFont',
-                  '"Segoe UI"',
-                  'Roboto',
-                  '"Helvetica Neue"',
-                  'Arial',
-                  'sans-serif',
-                  '"Apple Color Emoji"',
-                  '"Segoe UI Emoji"',
-                  '"Segoe UI Symbol"',
+                    '-apple-system',
+                    'BlinkMacSystemFont',
+                    '"Segoe UI"',
+                    'Roboto',
+                    '"Helvetica Neue"',
+                    'Arial',
+                    'sans-serif',
+                    '"Apple Color Emoji"',
+                    '"Segoe UI Emoji"',
+                    '"Segoe UI Symbol"',
                   ].join(','),
                 }}
                 className="w-1/2"
                 size="large"
-                >
+              >
                 {from ? `${from.municipality} - ${from.iata_code}` : "Where from?"}
-                </Button>
-                <Button
+              </Button>
+              <Button
                 variant="contained"
                 onClick={() => {
                   setfromPannel(false);
@@ -122,28 +178,28 @@ export default function Home() {
                   color: "black",
                   textAlign: "left",
                   fontFamily: [
-                  '-apple-system',
-                  'BlinkMacSystemFont',
-                  '"Segoe UI"',
-                  'Roboto',
-                  '"Helvetica Neue"',
-                  'Arial',
-                  'sans-serif',
-                  '"Apple Color Emoji"',
-                  '"Segoe UI Emoji"',
-                  '"Segoe UI Symbol"',
+                    '-apple-system',
+                    'BlinkMacSystemFont',
+                    '"Segoe UI"',
+                    'Roboto',
+                    '"Helvetica Neue"',
+                    'Arial',
+                    'sans-serif',
+                    '"Apple Color Emoji"',
+                    '"Segoe UI Emoji"',
+                    '"Segoe UI Symbol"',
                   ].join(','),
                 }}
                 className="w-1/2"
                 size="large"
-                >
+              >
                 {to ? `${to.municipality} - ${to.iata_code}` : "Where to?"}
-                </Button>
+              </Button>
             </div>
             <IoSearchCircle size={50} onClick={() => {
-                encrypt()
-            }}/>
-          </div> 
+              encrypt()
+            }} />
+          </div>
 
           {fromPannel && (
             <div

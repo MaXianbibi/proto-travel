@@ -11,16 +11,19 @@ import { Skeleton } from "antd";
 
 import { DateTime } from "luxon";
 
+import { useRouter } from 'next/navigation';
+
 import { get_name_from_iata_airline } from "@/app/lib/db_func"
 import Image from 'next/image';
 
 
 export default function FlightSearch() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const [flightData, setFlightData] = useState<FlightOffer[] | null>(null);
     const [flightQuery, setFlightQuery] = useState<FlightQuery | null>(null);
-
     const [chooseFlight, setChooseFlight] = useState<FlightOffer | null>(null);
+
 
 
 
@@ -72,9 +75,7 @@ export default function FlightSearch() {
                 </div>
 
                 {/* Affichage des Skeletons lorsque flightData n'est pas chargé */}
-                {!flightData
-
-
+                {flightData == null
                     ? [...Array(4)].map((_, index) => (
                         <Skeleton key={index} active className="border border-gray-300 p-4 w-full h-30 rounded-lg flex items-center gap-4">
                             <div className="w-24 h-16 bg-gray-200 rounded-md" />
@@ -85,9 +86,8 @@ export default function FlightSearch() {
                             <div className="w-16 h-6 bg-gray-200 rounded" />
                         </Skeleton>
                     ))
-
-
-                    : flightData.map((flight: FlightOffer) => (
+                    : 
+                    flightData?.map((flight: FlightOffer) => (
                         <div key={flight.id}
                             onClick={() => setChooseFlight(flight)}
                             className="border border-blue-200 flex gap-5 p-2 w-full rounded-l hover:scale-105 transition duration-50 ease-in-out cursor-pointer hover:shadow-lg shadow-md">
@@ -117,12 +117,11 @@ export default function FlightSearch() {
             </div>
 
             <div className="w-[40svw] h-full fixed right-20 p-5">
-                <h2 className="text-3xl font-bold">Confirmation</h2>'
+                <h2 className="text-3xl font-bold">Choisissez un vol pour continuer</h2>'
                 <div className="w-full h-96 bg-gray-200 rounded-lg flex justify-center items-center shadow-lg ">
                     {
                         chooseFlight ?
                             <div className="flex flex-col justify-end items-end">
-
                                 <div className="w-full h-full p-5 ">
                                     {
                                         chooseFlight.itineraries?.map((itinerary, index) => (
@@ -137,7 +136,6 @@ export default function FlightSearch() {
                                                 </div>
                                             </div>
                                         ))
-
                                     }
                                     <div className="flex gap-5">
                                         <div>
@@ -148,12 +146,15 @@ export default function FlightSearch() {
                                         </div>
                                     </div>
                                 </div>
+                                <button className="bg-slate-800 text-white px-4 py-1 w-fit  rounded-lg" 
+                                onClick={() => {
 
+                                    router.push("/generate");
+                                }}  
 
-                                <button className="bg-slate-800 text-white px-4 py-1 w-fit  rounded-lg">CONFIRM</button>
-
+                                >
+                                    NEXT STEP</button>
                             </div> :
-
                             <p className="text-2xl">Please select a flight</p>
                     }
                 </div>

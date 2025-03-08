@@ -30,7 +30,6 @@ export async function search_flight(data: string): Promise<[FlightOffer[], Fligh
         return null;
     }
 
-
     const cache = await check_for_cache(data);
     if (cache) {
         const flightOffer : FlightOffer[] = await mapFlightOffers(JSON.parse(cache));
@@ -53,7 +52,8 @@ export async function search_flight(data: string): Promise<[FlightOffer[], Fligh
         const sort_by_price = res.data.sort((a: any, b: any) => a.price.total - b.price.total)
         const json_data = JSON.stringify(sort_by_price, null, 2)
 
-        client.setEx(data, 60 * 30, json_data);
+
+        client.setex(data, 60 * 30, json_data);
         return [await mapFlightOffers(sort_by_price), flightQuery];
     } catch (error) {
         console.error("❌ Erreur lors de la recherche de vols :", error);

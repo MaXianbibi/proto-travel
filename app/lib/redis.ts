@@ -1,11 +1,9 @@
 
-import redis from 'redis';
+import Redis from "ioredis"
 
-const client = redis.createClient({
-    url: 'redis://127.0.0.1:6379', // Adresse du serveur Redis
-  });
+const client = new Redis("rediss://default:AXLlAAIjcDFiZDc0ZjhmZWVmYmU0NzY3ODA4NDczOGUwMTUzMjNjOHAxMA@intimate-monarch-29413.upstash.io:6379");
 
-await client.connect();
+
   
 client.on('connect', () => {
     console.log('Connecté à Redis');
