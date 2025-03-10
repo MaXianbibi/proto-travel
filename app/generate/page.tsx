@@ -1,12 +1,13 @@
 "use client";
 
 import { useSearchParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import hotel from '@/public/hotel.jpg';
 import food from '@/public/food.jpg';
 import taxi from '@/public/taxi.jpg';
 import TypeWritter from '../Components/typeWriterEffect/TypeWriter';
+import { containerClasses } from '@mui/material';
 
 interface Question {
     title: string;
@@ -29,65 +30,108 @@ interface QuestionList {
 
 export default function Page() {
     const searchParams = useSearchParams();
-    const [chooseQuestion, setChooseQuestion] = useState<boolean>(true);
+    const [chooseQuestion, setChooseQuestion] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<QuestionList>({
-        questions: [
+        questions:[
             {
-                title: "Dans quoi préférez-vous dépenser ?",
-                preference: { hook: "Pour moi, le voyage c'est avant tout ", preference: [] },
+                title: "Où rêvez-vous de poser vos valises ?",
+                preference: { hook: "Quand je pense à mon nid douillet en voyage, j’imagine ", preference: [] },
                 options: [
-                    { src: taxi, alt: "Taxi", text: "le confort des transports" },
-                    { src: hotel, alt: "Hôtel", text: "la qualité de l'hébergement" },
-                    { src: food, alt: "Nourriture", text: "la découverte culinaire" },
+                    { src: hotel, alt: "Chambre d’hôtel moderne", text: "un hôtel confortable avec services" },
+                    { src: hotel, alt: "Appartement cosy", text: "un appartement local pour vivre comme un habitant" },
+                    { src: hotel, alt: "Tente sous les étoiles", text: "un hébergement insolite en pleine nature" }
                 ],
-                default: "profiter d'un mix parfait entre confort, repos et saveurs locales",
+                default: "un équilibre entre confort moderne et une touche d’authenticité locale"
             },
             {
-                title: "Comment préférez-vous explorer une destination ?",
-                preference: { hook: "J'aime découvrir un lieu à travers ", preference: [] },
+                title: "Qu’est-ce qui vous attire dans la culture d’une destination ?",
+                preference: { hook: "J’aime plonger dans une culture à travers ", preference: [] },
                 options: [
-                    { src: taxi, alt: "Excursions", text: "les visites guidées organisées" },
-                    { src: food, alt: "Culture", text: "l'immersion dans la culture locale" },
-                    { src: hotel, alt: "Aventure", text: "les aventures en plein air" },
+                    { src: hotel, alt: "Musée avec statues", text: "les musées et sites historiques" },
+                    { src: food, alt: "Foule dans un festival", text: "les festivals et événements locaux" },
+                    { src: food, alt: "Marché coloré", text: "les marchés et l’artisanat traditionnel" }
                 ],
-                default: "un savant mélange d'aventures spontanées et de découvertes culturelles guidées",
-            },
-            {
-                title: "Quel type d'expérience recherchez-vous ?",
-                preference: { hook: "Ce qui me motive en voyage, c'est ", preference: [] },
-                options: [
-                    { src: hotel, alt: "Détente", text: "la détente et le repos" },
-                    { src: taxi, alt: "Exploration", text: "l'exploration de nouveaux lieux" },
-                    { src: food, alt: "Rencontres", text: "les rencontres avec les locaux" },
-                ],
-                default: "me ressourcer tout en explorant et en tissant des liens authentiques",
+                default: "une combinaison de découvertes historiques et d’immersion dans la vie locale"
             },
             {
                 title: "Comment organisez-vous vos journées en voyage ?",
-                preference: { hook: "Ma journée idéale en voyage repose sur ", preference: [] },
+                preference: { hook: "Quand je découvre une ville, je préfère ", preference: [] },
                 options: [
-                    { src: taxi, alt: "Planification", text: "un planning structuré" },
-                    { src: food, alt: "Spontanéité", text: "la spontanéité et l’improvisation" },
-                    { src: hotel, alt: "Repos", text: "des moments de repos" },
+                    { src: taxi, alt: "Carnet avec itinéraire", text: "suivre un planning bien structuré" },
+                    { src: taxi, alt: "Rues animées", text: "me perdre dans les rues au gré de mes envies" },
+                    { src: food, alt: "Café en terrasse", text: "prendre le temps dans un café ou un parc" }
                 ],
-                default: "un rythme fluide où je planifie juste assez pour laisser place à l’imprévu",
+                default: "un savant dosage entre exploration libre et moments de détente planifiés"
             },
             {
-                title: "Ques qui vous attire le plus dans votre prochaine destination ?",
-                preference: { hook: "Je choisis une destination pour ", preference: [] },
+                title: "Comment aimez-vous découvrir la cuisine locale ?",
+                preference: { hook: "Pour moi, un voyage passe aussi par ", preference: [] },
                 options: [
-                    { src: food, alt: "Cuisine", text: "sa cuisine et ses saveurs" },
-                    { src: taxi, alt: "Histoire", text: "son histoire et son patrimoine" },
-                    { src: hotel, alt: "Nature", text: "sa beauté naturelle" },
+                    { src: food, alt: "Étal de street food", text: "la street food authentique" },
+                    { src: food, alt: "Table élégante", text: "les restaurants réputés" },
+                    { src: food, alt: "Cours de cuisine", text: "cuisiner avec des ingrédients locaux" }
                 ],
-                default: "un endroit qui m'émerveille par sa nature et me raconte une histoire à chaque bouchée",
+                default: "un mélange de saveurs locales goûtées sur le pouce et de repas mémorables"
             },
+        
+            {
+                title: "Quelle aventure en pleine nature vous tente ?",
+                preference: { hook: "Quand je suis entouré(e) de nature, j’aime ", preference: [] },
+                options: [
+                    { src: taxi, alt: "Randonnée en montagne", text: "partir en randonnée dans les montagnes" },
+                    { src: hotel, alt: "Plage ensoleillée", text: "me détendre sur une plage de rêve" },
+                    { src: taxi, alt: "Vélo dans la campagne", text: "explorer à vélo des paysages magnifiques" }
+                ],
+                default: "un équilibre entre aventure active et pauses relaxantes au grand air"
+            },
+            {
+                title: "Comment répartissez-vous vos dépenses pour manger ?",
+                preference: { hook: "Quand il s’agit de repas en voyage, je mise sur ", preference: [] },
+                options: [
+                    { src: food, alt: "Repas simple", text: "des options abordables et locales" },
+                    { src: food, alt: "Plat gastronomique", text: "quelques expériences gastronomiques mémorables" },
+                    { src: food, alt: "Buffet varié", text: "un mélange des deux selon l’humeur" } // wtf
+                ],
+                default: "une combinaison intelligente entre petits plaisirs locaux et découvertes raffinées"
+            },
+            {
+                title: "Qu’aimez-vous ramener de vos voyages ?",
+                preference: { hook: "Pour garder un souvenir tangible, je choisis ", preference: [] },
+                options: [
+                    { src: hotel, alt: "Artisanat local", text: "des objets artisanaux uniques" },
+                    { src: food, alt: "Spécialités locales", text: "des spécialités culinaires à partager" },
+                    { src: taxi, alt: "Appareil photo", text: "juste des photos, pas d’achats" }
+                ],
+                default: "un mix de petits trésors locaux et de souvenirs immortalisés en images"
+            },
+            {
+                title: "Quel rythme vous convient le mieux en voyage ?",
+                preference: { hook: "Quand je pars à l’aventure, j’aime ", preference: [] },
+                options: [
+                    { src: taxi, alt: "Horloge qui tourne", text: "un rythme soutenu pour tout voir" },
+                    { src: hotel, alt: "Hamac relaxant", text: "prendre mon temps pour profiter" },
+                    { src: taxi, alt: "Montre et paysage", text: "alterner entre action et repos" }
+                ],
+                default: "un rythme harmonieux qui combine découvertes et pauses bien méritées"
+            },
+            {
+                title: "Comment aimez-vous rencontrer les habitants ?",
+                preference: { hook: "Pour moi, les rencontres en voyage, c’est ", preference: [] },
+                options: [
+                    { src: food, alt: "Discussion animée", text: "discuter avec les locaux dans les cafés" },
+                    { src: taxi, alt: "Guide local", text: "suivre un guide pour des histoires authentiques" },
+                    { src: hotel, alt: "Personne seule", text: "observer sans trop interagir" }
+                ],
+                default: "un équilibre entre échanges spontanés et découvertes guidées"
+            }
         ],
         map: [],
     });
 
     const [oldOption, setOldOption] = useState<string[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+
 
     const handleOptionClick = (text: string) => {
         setOldOption(selectedOption.map);
@@ -121,7 +165,7 @@ export default function Page() {
                     return q.preference.hook + q.default;
                 }
                 // Sinon, lister les préférences sélectionnées
-                return selectedPrefs.length > 0 ? `${q.preference.hook} ${selectedPrefs.join(" et ")}` : "";
+                return selectedPrefs.length > 0 ? `${q.preference.hook} ${selectedPrefs.join(" et/ou ")}` : "";
             }).filter(Boolean);
 
             return { ...prev, questions: updatedQuestions, map: newMap };
@@ -205,7 +249,7 @@ export default function Page() {
                         <h2>Vous pouvez choisir plus d'une option</h2>
                     </div>
                     <div className="w-full h-fit flex items-center justify-center gap-4">
-                        <div className="w-96 h-fit min-h-96 absolute left-16 top-1/2 -translate-y-1/2 border p-2 flex flex-col">
+                        <div  className="w-96 h-[600px]  absolute left-16 top-1/2 -translate-y-1/2 border p-2 flex flex-col">
                             <div className="flex gap-1 flex-col">
                                 <h2 className='text-lg border-b py-2'>Votre profile voyageur</h2>
                                 <TypeWritter fullText={selectedOption.map} oldOption={oldOption} />

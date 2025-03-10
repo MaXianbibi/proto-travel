@@ -127,17 +127,29 @@ const TypeWritter = ({ fullText, oldOption = [] }: TypeWriterProps) => {
     };
   }, [fullText, oldOption]);
 
+
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (divRef.current) {
+      divRef.current.scrollTop = divRef.current.scrollHeight;
+    }
+  }, [displayedText]);
+
   return (
-    <span className="text-2xl font-light font-inter">
-      {displayedText.map((text, index) => (
-        <span key={index}>
-          {text}
-          {index < displayedText.length - 1 && ' '}.
-          <br />
-          <br />
-        </span>
-      ))}
-    </span>
+    <div ref={divRef} className='h-[535px] overflow-y-auto'>
+
+      <span className="text-2xl font-light font-inter ">
+        {displayedText.map((text, index) => (
+          <span key={index}>
+            {text}.
+            {index < displayedText.length - 1 && ' '}
+            <br />
+            <br />
+          </span>
+        ))}
+      </span>
+    </div>
   );
 };
 
