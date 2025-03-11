@@ -60,13 +60,13 @@ model Airline {
 
 
 model User {
-  id        String   @id @default(cuid()) // Identifiant unique
-  email     String   @unique // Email unique obligatoire
-  password  String   // Mot de passe hashé (bcrypt)
-  createdAt DateTime @default(now()) // Date d'inscription
-  updatedAt DateTime @updatedAt      // Date de dernière mise à jour
-  role      Role     @default(USER) // Rôle avec une valeur par défaut
+  id                String   @id @default(cuid()) // Identifiant unique
+  email             String   @unique // Email unique obligatoire
+  password          String   // Mot de passe hashé (bcrypt)
+  createdAt         DateTime @default(now()) // Date d'inscription
+  updatedAt         DateTime @updatedAt      // Date de dernière mise à jour
+  role              Role     @default(USER) // Rôle avec une valeur par défaut
+  travel_profile    String?  // Champ profile optionnel (peut être null)
 
   @@map("users") // Nom de la table en BDD
 }
-

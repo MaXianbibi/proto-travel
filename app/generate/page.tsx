@@ -8,6 +8,9 @@ import food from '@/public/food.jpg';
 import taxi from '@/public/taxi.jpg';
 import TypeWritter from '../Components/typeWriterEffect/TypeWriter';
 import { containerClasses } from '@mui/material';
+import { useUser } from '../lib/customHook/custumHooks';
+import { User } from '../lib/auth/interface';
+import { add_travel_profile } from '../lib/db_lib/user';
 
 interface Question {
     title: string;
@@ -28,11 +31,18 @@ interface QuestionList {
     map: string[];
 }
 
+
+async function pushTravelProfile(profile: string, user : User | null) {
+    console.log("sending data")
+    if (user) await add_travel_profile(user, profile);
+
+}
+
 export default function Page() {
     const searchParams = useSearchParams();
     const [chooseQuestion, setChooseQuestion] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<QuestionList>({
-        questions:[
+        questions: [
             {
                 title: "Où rêvez-vous de poser vos valises ?",
                 preference: { hook: "Quand je pense à mon nid douillet en voyage, j’imagine ", preference: [] },
@@ -73,7 +83,7 @@ export default function Page() {
                 ],
                 default: "un mélange de saveurs locales goûtées sur le pouce et de repas mémorables"
             },
-        
+
             {
                 title: "Quelle aventure en pleine nature vous tente ?",
                 preference: { hook: "Quand je suis entouré(e) de nature, j’aime ", preference: [] },
@@ -186,6 +196,11 @@ export default function Page() {
         }
     };
 
+
+    const user : User | null = useUser();
+
+
+
     return (
         <div className="w-svw flex flex-col h-fit ">
             <header className="w-svw h-20 shadow-lg border-b flex items-center justify-center">
@@ -249,7 +264,7 @@ export default function Page() {
                         <h2>Vous pouvez choisir plus d'une option</h2>
                     </div>
                     <div className="w-full h-fit flex items-center justify-center gap-4">
-                        <div  className="w-96 h-[600px]  absolute left-16 top-1/2 -translate-y-1/2 border p-2 flex flex-col">
+                        <div className="w-96 h-[600px]  absolute left-16 top-1/2 -translate-y-1/2 border p-2 flex flex-col">
                             <div className="flex gap-1 flex-col">
                                 <h2 className='text-lg border-b py-2'>Votre profile voyageur</h2>
                                 <TypeWritter fullText={selectedOption.map} oldOption={oldOption} />
@@ -286,13 +301,23 @@ export default function Page() {
                         >
                             Previous
                         </button>
-                        <button
-                            onClick={handleNext}
-                            className="px-6 py-2 border border-blue-600 text-blue-600 font-medium rounded-md hover:bg-blue-600 hover:text-white active:bg-blue-700 transition"
-                            disabled={currentQuestionIndex === selectedOption.questions.length - 1}
-                        >
-                            Next
-                        </button>
+                        {
+                            currentQuestionIndex !== selectedOption.questions.length - 1 ?
+                                <button
+                                    onClick={handleNext}
+                                    className="px-6 py-2 border border-blue-600 text-blue-600 font-medium rounded-md hover:bg-blue-600 hover:text-white active:bg-blue-700 transition"
+                                    disabled={currentQuestionIndex === selectedOption.questions.length - 1}
+                                >
+                                    Next
+                                </button> :
+
+                                <button
+                                    onClick={() => { pushTravelProfile(selectedOption.map.join(' \n \n'), user); }}
+                                    className="px-6 py-2 border border-blue-600 text-blue-600 font-medium rounded-md hover:bg-blue-600 hover:text-white active:bg-blue-700 transition"
+                                >
+                                    Submit
+                                </button>
+                        }
                     </div>
                 </div>
             )}
