@@ -11,3 +11,7 @@ export async function check_for_cache(data: string ) : Promise<string | null> {
     }
     return null
 }
+
+export async function set_cache(data: string, value: string, time: number) {
+    client.setex(data, time, value);
+}

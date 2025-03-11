@@ -22,7 +22,8 @@ export async function getUser() : Promise<User | null> {
         id: res.id,
         email: res.email,
         role: res.role,
-        password: ""
+        password: "",
+        travel_profile: res.travel_profile
     }
 
     return user

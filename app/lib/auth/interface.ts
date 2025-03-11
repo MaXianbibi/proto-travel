@@ -5,4 +5,5 @@ export interface User {
     createdAt?: Date
     updatedAt?: Date
     role?: string
+    travel_profile: string | null
 }
